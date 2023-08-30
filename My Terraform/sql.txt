@@ -1,0 +1,32 @@
+/*
+resource "azurerm_mssql_server" "Dev_sql_server" {
+  name                         = "aravind-dev-sql-001"
+  resource_group_name          = var.resource_group_name
+  location                     = var.location
+  version                      = "12.0"
+  administrator_login          = "localadmin"
+  administrator_login_password = "Welcome@2023"
+  minimum_tls_version          = "1.2"
+  identity {
+    type = "SystemAssigned"
+  }
+}
+resource "azurerm_sql_active_directory_administrator" "Dev-sql-server-admin" {
+  server_name         = azurerm_mssql_server.Dev_sql_server.name
+  resource_group_name = var.resource_group_name
+  login               = "Platform_Admin"
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  object_id           = "d9036395-2832-4249-83fd-48b236510077"
+}
+
+resource "azurerm_mssql_database" "Dev-sql-fw-db" {
+  name           = "aravind-dev-sql-fw-db"
+  server_id      = azurerm_mssql_server.Dev_sql_server.id
+  collation      = "SQL_Latin1_General_CP1_CI_AS"
+license_type   = "LicenseIncluded"
+  max_size_gb    = 250
+    sku_name       = "S2"
+  
+}
+  
+*/

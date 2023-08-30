@@ -1,0 +1,122 @@
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_key_vault" "mykeyvault" {
+  name                        = var.keyvault_name
+  location                    = var.location
+  resource_group_name         = var.resource_group_name
+  enabled_for_disk_encryption = true
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+  soft_delete_retention_days  = 7
+  purge_protection_enabled    = false
+  sku_name                    = "premium"
+  public_network_access_enabled = false
+  #depends_on = [ azurerm_resource_group.Resource_group ]
+}
+
+/*
+
+data "azuread_service_principal" "terraformspn" {
+  application_id = "da4bd26a-2bab-4687-8041-fa8a8dc0cb12"
+}
+
+resource "azurerm_key_vault_access_policy" "spnaccesspolicy" {
+  key_vault_id = azurerm_key_vault.mykeyvault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azuread_service_principal.terraformspn.object_id
+  depends_on   = [azurerm_key_vault.mykeyvault]
+  secret_permissions = [
+    "Get", "List"
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "techlearningaccesspolicy" {
+  key_vault_id = azurerm_key_vault.mykeyvault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = "cc7577ca-cf9e-4a3a-98eb-691041c4bc1e"
+  depends_on   = [azurerm_key_vault.mykeyvault]
+  secret_permissions = [
+    "Get", "List", "Set"
+  ]
+}
+
+#private endpoint connection
+
+resource "azurerm_private_dns_zone" "keyvaultdnszone" {
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = var.resource_group_name
+  
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "keyvaultdnszonenwlink" {
+  name                  = "keyvaultpdnsvnl"
+  resource_group_name   = var.resource_group_name
+  private_dns_zone_name = azurerm_private_dns_zone.keyvaultdnszone.name
+  virtual_network_id    = azurerm_virtual_network.applicationvnetwrk.id
+}
+
+resource "azurerm_private_endpoint" "Keyvault_pep" {
+  name                        = "Keyvaultpep001"
+  location                    = var.location
+  resource_group_name         = var.resource_group_name
+  subnet_id               = azurerm_subnet.privatendpoint.id
+  private_dns_zone_group {
+    name = "app-private-dns-zone-kv"
+    private_dns_zone_ids = [azurerm_private_dns_zone.keyvaultdnszone.id]
+  }
+
+    private_service_connection {
+    name                           = "Keyvaultpep001"
+    private_connection_resource_id = azurerm_key_vault.mykeyvault.id
+    is_manual_connection           = false
+    subresource_names = ["vault"]
+  }
+}
+
+resource "azurerm_private_dns_zone" "my_dns" {
+  name                = "mydomain.com"
+  resource_group_name = var.resource_group_name
+}
+
+resource "azurerm_public_ip" "Public_IP_01" {
+  name                = "publicip_001"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  sku                 = "Standard"
+  allocation_method   = "Static"
+}
+
+resource "azurerm_lb" "My_loadbalancer" {
+  name                = "mylb001"
+  sku                 = "Standard"
+  location            = var.location
+  resource_group_name = var.resource_group_name
+
+  frontend_ip_configuration {
+    name                 = azurerm_public_ip.Public_IP_01.name
+    public_ip_address_id = azurerm_public_ip.Public_IP_01.id
+  }
+}
+
+resource "azurerm_private_link_service" "Keyvault_pls" {
+  name                        = "Keyvault_pls"
+  location                    = var.location
+  resource_group_name         = var.resource_group_name
+  
+
+  nat_ip_configuration {
+    name      = azurerm_public_ip.Public_IP_01.name
+    primary   = true
+    subnet_id = azurerm_subnet.privatendpoint.id
+  }
+
+load_balancer_frontend_ip_configuration_ids = [
+    azurerm_lb.My_loadbalancer.frontend_ip_configuration.0.id,
+  ]
+}
+
+
+
+
+
+}
+*/

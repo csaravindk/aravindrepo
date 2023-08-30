@@ -1,0 +1,77 @@
+
+
+
+resource "azurerm_virtual_network" "applicationvnetwrk" {
+  name                = var.virtualnetwork.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  address_space       = [var.virtualnetwork.address_space]
+  depends_on          = [azurerm_resource_group.applicationrg]
+
+}
+
+resource "azurerm_subnet" "privateSubnet" {
+  resource_group_name  = var.resource_group_name
+  name                 = "privatesubnet01"
+  virtual_network_name = var.virtualnetwork.name
+  address_prefixes     = ["10.0.0.0/24"]
+  depends_on           = [azurerm_virtual_network.applicationvnetwrk]
+
+  delegation {
+    name = "databricksprivate"
+
+    service_delegation {
+      name    = "Microsoft.Databricks/workspaces"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+    }
+  }
+
+}
+
+resource "azurerm_subnet" "publicSubnet" {
+
+  name                 = "publicsubnet01"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtualnetwork.name
+  address_prefixes     = ["10.0.1.0/24"]
+  depends_on           = [azurerm_virtual_network.applicationvnetwrk]
+
+  delegation {
+    name = "databrickspublic"
+
+    service_delegation {
+      name    = "Microsoft.Databricks/workspaces"
+      actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action"]
+    }
+  }
+
+}
+
+
+resource "azurerm_network_security_group" "appnsg" {
+  name                = var.nsg_name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  depends_on          = [azurerm_virtual_network.applicationvnetwrk, azurerm_subnet.privateSubnet, azurerm_subnet.publicSubnet]
+
+}
+
+resource "azurerm_subnet_network_security_group_association" "pubnsgass" {
+  subnet_id                 = azurerm_subnet.publicSubnet.id
+  network_security_group_id = azurerm_network_security_group.appnsg.id
+  depends_on                = [azurerm_network_security_group.appnsg]
+}
+resource "azurerm_subnet_network_security_group_association" "prvnsgass" {
+  subnet_id                 = azurerm_subnet.privateSubnet.id
+  network_security_group_id = azurerm_network_security_group.appnsg.id
+  depends_on                = [azurerm_network_security_group.appnsg]
+}
+
+resource "azurerm_subnet" "privatendpoint" {
+
+  name                 = "privatendpoint"
+  resource_group_name  = var.resource_group_name
+  virtual_network_name = var.virtualnetwork.name
+  address_prefixes     = ["10.0.2.0/25"]
+  private_link_service_network_policies_enabled = true
+}

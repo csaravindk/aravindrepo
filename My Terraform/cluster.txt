@@ -1,0 +1,132 @@
+locals {
+  default_policy = {
+    "node_type_id": {
+    "type": "allowlist",
+    "values": [
+      "Standard_DS3_v2"
+    ],
+    "defaultValue": "Standard_DS3_v2"
+  },
+    "driver_node_type_id": {
+    "type": "allowlist",
+    "values": [
+      "Standard_DS3_v2"
+    ]
+  },
+  "spark_version": {
+    "type": "allowlist",
+    "values": [
+      "11.3.x-scala2.12"
+    ]
+  },
+  "instance_pool_id": {
+    "type": "forbidden",
+    "hidden": true
+  },
+  "driver_instance_pool_id": {
+    "type": "forbidden",
+    "hidden": true
+  },
+  "autoscale.min_workers": {
+    "type": "fixed",
+    "value": 1
+  },
+  "autoscale.max_workers": {
+    "type": "fixed",
+    "value": 1
+  },
+  "autotermination_minutes": {
+    "type": "range",
+    "maxValue": 150,
+    "defaultValue": 120
+  },
+  "azure_attributes.availability": {
+    "type": "unlimited",
+    "defaultValue": "SPOT_WITH_FALLBACK_AZURE"
+  },
+  "custom_tags.Business Criticality": {
+    "type": "fixed",
+    "value": "Medium"
+  },
+  "custom_tags.Cost Center": {
+    "type": "fixed",
+    "value": "9073-Data&Analytics"
+  },
+  "custom_tags.Disaster Recovery": {
+    "type": "fixed",
+    "value": "Essential"
+  },
+  "custom_tags.Environment": {
+    "type": "fixed",
+    "value": "Dev"
+  },
+  "custom_tags.Internal Owner": {
+    "type": "fixed",
+    "value": "Data Engineering"
+  },
+  "custom_tags.Workload Name": {
+    "type": "fixed",
+    "value": "Dev-Small"
+  },
+  "custom_tags.Start Date of Project": {
+    "type": "fixed",
+    "value": "1/1/2020"
+  },
+  "custom_tags.Owner Email": {
+    "type": "fixed",
+    "value": "ETL_Alerts@caseys.com"
+  }
+  }
+}
+
+resource "databricks_cluster_policy" "cluster_policy" {
+  name       = "${var.type} cluster policy"
+  definition = jsonencode(local.default_policy)
+  
+}
+
+resource "databricks_permissions" "can_use_cluster_policyinstance_profile" {
+  cluster_policy_id = databricks_cluster_policy.cluster_policy.id
+  access_control {
+    group_name       = var.group
+    permission_level = "CAN_USE"
+  }
+}
+
+resource "databricks_cluster" "container_cluster" {
+  cluster_name            = "Container Cluster"
+  spark_version           = "11.3.x-scala2.12"
+  node_type_id            = "Standard_DS3_v2"
+  autotermination_minutes = 10
+  data_security_mode = "SINGLE_USER"
+  policy_id = databricks_cluster_policy.cluster_policy.id
+  autoscale {
+    min_workers = 1
+    max_workers = 1
+  }
+  spark_conf = {
+    "spark.databricks.delta.preview.enabled" = "true"
+  }
+  custom_tags = {
+    "Internal Owner" = "Data Engineering",
+    "Business Criticality" = "Medium",
+    "Cost Center" = "9073-Data&Analytics",
+    "Disaster Recovery" = "Essential",
+    "Start Date of Project" = "1/1/2020",
+    "Owner Email" = "ETL_Alerts@caseys.com",
+    "Workload Name" = "Dev-Small",
+    "Environment" = "Dev"
+  }
+  enable_elastic_disk = "true"
+  enable_local_disk_encryption = "false"
+  runtime_engine = "PHOTON"
+}
+
+variable "type" {
+  description = "small cluster policy"
+  default     = "small"
+}
+variable "group" {
+  description = "Group that performs the work"
+  default = "csg_fuel"
+}

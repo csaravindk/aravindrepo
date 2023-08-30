@@ -1,0 +1,15 @@
+locals {
+  resource_group_name = "applicationrg"
+  location = "West Europe"
+  nsg_name = "Applicationnsg"
+
+  storageaccount_name = "mystorage4786123"
+  conatiner_Name = "testcontainer"
+  workspace_name = "myworkspace"
+  
+    
+  virtualnetwork = {
+  name = "applicationvnet"
+  address_space = "10.0.0.0/16"
+  } 
+}

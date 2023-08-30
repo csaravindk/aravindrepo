@@ -1,0 +1,371 @@
+resource "azurerm_storage_account" "unityadls" {
+  name                     = var.storageaccount_name
+  resource_group_name      = var.resource_group_name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  account_kind             = "StorageV2"
+  is_hns_enabled           = "true"
+  depends_on               = [azurerm_resource_group.applicationrg]
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "metastore_container" {
+  name               = "mymetastore"
+  storage_account_id = azurerm_storage_account.unityadls.id
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "Fuel_Container" {
+  name               = "fuel"
+  storage_account_id = azurerm_storage_account.unityadls.id
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel contributor group"
+    permissions = "rwx"
+  }
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel reader group"
+    permissions = "r-x"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel reader group"
+    permissions = "r-x"
+  }
+
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - raw reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - raw contributor group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - protected reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - protected contributor group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - purpose reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel - purpose contributor group"
+    permissions = "r-x"
+
+}
+}
+
+resource "azurerm_storage_data_lake_gen2_path" "Fuel_Raw" {
+  path               = "raw"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Fuel_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Fuel_Container]
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel raw contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel raw contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel raw reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel raw reader group"
+    permissions = "r-x"
+  }
+}
+
+resource "azurerm_storage_data_lake_gen2_path" "Fuel_Protected" {
+  path               = "protected"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Fuel_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Fuel_Container]
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel protected contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel protected contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel protected reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel protected reader group"
+    permissions = "r-x"
+  }
+}
+
+resource "azurerm_storage_data_lake_gen2_path" "Fuel_Purpose" {
+  path               = "purpose"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Fuel_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Fuel_Container]
+
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel purpose contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel purpose contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Fuel purpose reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Fuel purpose reader group"
+    permissions = "r-x"
+  }
+
+}
+
+resource "azurerm_storage_data_lake_gen2_filesystem" "Merchandise_Container" {
+  name               = "merchandise"
+  storage_account_id = azurerm_storage_account.unityadls.id
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of merchandise contributor group"
+    permissions = "rwx"
+  }
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise reader group"
+    permissions = "r-x"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of merchandise reader group"
+    permissions = "r-x"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - raw reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - raw contributor group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - protected reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - protected contributor group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - purpose reader group"
+    permissions = "r-x"
+
+}
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of merchandise - purpose contributor group"
+    permissions = "r-x"
+
+}
+
+}
+
+resource "azurerm_storage_data_lake_gen2_path" "Merchandise_Raw" {
+  path               = "raw"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container]
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise raw contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise raw contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise raw reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise raw reader group"
+    permissions = "r-x"
+  }
+}
+resource "azurerm_storage_data_lake_gen2_path" "Merchandise_Protected" {
+  path               = "protected"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container]
+
+ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise protected contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise protected contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise protected reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise protected reader group"
+    permissions = "r-x"
+  }
+
+}
+
+resource "azurerm_storage_data_lake_gen2_path" "Merchandise_Purpose" {
+  path               = "purpose"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.Merchandise_Container]
+
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise purpose contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise purpose contributor group"
+    permissions = "rwx"
+  }
+  ace {
+    type = "group"
+    scope = "access"
+    id = "id of Merchandise purpose reader group"
+    permissions = "r-x"
+  }
+ace {
+    type = "group"
+    scope = "default"
+    id = "id of Merchandise purpose reader group"
+    permissions = "r-x"
+  }
+
+}
+resource "azurerm_storage_data_lake_gen2_filesystem" "data_lake_acl_test" {
+  name               = "acltest"
+  storage_account_id = azurerm_storage_account.unityadls.id
+  depends_on         = [azurerm_storage_account.unityadls]
+}
+
+# create the folder "raw" and give read and execute access and default permissions to group
+resource "azurerm_storage_data_lake_gen2_path" "folder_raw" {
+  path               = "raw"
+  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.data_lake_acl_test.name
+  storage_account_id = azurerm_storage_account.unityadls.id
+  resource           = "directory"
+  depends_on         = [azurerm_storage_data_lake_gen2_filesystem.data_lake_acl_test]
+
+}
