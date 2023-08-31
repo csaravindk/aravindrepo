@@ -15,18 +15,11 @@ terraform {
   }
 }
 provider "azurerm" {
-  subscription_id = "2e932ad9-643e-4fd3-8c74-f121b235d920"
-  tenant_id       = "7a6720b2-b0ac-493c-8c20-09e1f6028803"
-  client_id       = "137ed1e2-8ec2-4c0d-947f-04ddba795872"
-  client_secret   = "GjD8Q~5em5BWJ2ioKqqsgW3gj3zjHuZHNSqNibSW"
-  features {}
+  
 }
 
 provider "azuread" {
-  use_cli       = "false"
-  tenant_id       = "7a6720b2-b0ac-493c-8c20-09e1f6028803"
-  client_id       = "137ed1e2-8ec2-4c0d-947f-04ddba795872"
-  client_secret   = "GjD8Q~5em5BWJ2ioKqqsgW3gj3zjHuZHNSqNibSW"
+  
 }
 
 
